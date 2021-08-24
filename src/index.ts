@@ -7,6 +7,7 @@ import express, {
 } from 'express'
 import { errorHandler, HttpStatusCode } from './utils/errorHandler'
 import { ServerResponse } from './utils/serverResponse'
+import logger from './utils/logger'
 import { config } from 'dotenv'
 import routeV1 from './routesV1'
 import { ConnectDb } from './database'
@@ -84,7 +85,7 @@ app.use(
   }
 )
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
+  app.listen(PORT, () => logger.info(`Server started on port ${PORT}`))
 }
 
 export default app
