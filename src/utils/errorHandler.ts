@@ -23,7 +23,7 @@ export enum HttpStatusCode {
 }
 
 class ErrorHandler {
-  public async handleError(
+  async handleError(
     err: ServerError<unknown>,
     request: Request,
     response: Response
@@ -49,7 +49,7 @@ class ErrorHandler {
     })
   }
 
-  public isTrustedError(error: unknown): error is ServerError<unknown> {
+  isTrustedError(error: unknown): error is ServerError<unknown> {
     if (error instanceof ServerError) {
       return error.isOperational
     }

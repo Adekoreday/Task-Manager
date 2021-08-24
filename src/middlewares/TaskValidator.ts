@@ -3,17 +3,6 @@ import CheckForErrors from './CheckForError'
 import { ValidationChain } from 'express-validator'
 import emptyBody from './emptyBody'
 import CommonValidator from './CommonValidator'
-/**
- * @name makeLowerCase
- * @param {String} value string to be sanitized
- * @returns {String} lower case string
- */
-const makeLowerCase = (value: string): string => {
-  if (value !== '') {
-    return value.toLowerCase()
-  }
-  return value
-}
 
 /**
  * @class UserValidator
@@ -31,7 +20,6 @@ export default class TaskValidator {
       .trim()
       .isLength({ min: 2, max: 40 })
       .withMessage(`${field} must be at least 2 characters, and maximum 40`)
-      .customSanitizer((value) => makeLowerCase(value))
   }
   /**
    * string validator
@@ -44,7 +32,6 @@ export default class TaskValidator {
       .trim()
       .isLength({ min: 2, max: 40 })
       .withMessage(`${field} must be at least 2 characters, and maximum 40`)
-      .customSanitizer((value) => makeLowerCase(value))
   }
   /**
    * string validator
@@ -57,10 +44,10 @@ export default class TaskValidator {
       .trim()
       .isLength({ min: 10, max: 500 })
       .withMessage(
-        ' description must be at least 10 characters, and maximum 500'
+        'description must be at least 10 characters, and maximum 500'
       )
-      .customSanitizer((value) => makeLowerCase(value))
   }
+
   /**
    * string validator
    * @param {string} name
@@ -72,9 +59,8 @@ export default class TaskValidator {
       .trim()
       .isLength({ min: 10, max: 500 })
       .withMessage(
-        ' description must be at least 10 characters, and maximum 500'
+        'description must be at least 10 characters, and maximum 500'
       )
-      .customSanitizer((value) => makeLowerCase(value))
   }
   /**
    * string validator
@@ -89,8 +75,7 @@ export default class TaskValidator {
         /^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$/,
         'g'
       )
-      .withMessage(' date string should be of format 2015-1-11 13:57:24')
-      .customSanitizer((value) => makeLowerCase(value))
+      .withMessage('date string should be of format 2015-1-11 13:57:24')
   }
   /**
    * string validator
@@ -105,8 +90,7 @@ export default class TaskValidator {
         /^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$/,
         'g'
       )
-      .withMessage(' date string should be of format 2015-1-11 13:57:24')
-      .customSanitizer((value) => makeLowerCase(value))
+      .withMessage('date string should be of format 2015-1-11 13:57:24')
   }
 
   /**
