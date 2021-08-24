@@ -50,8 +50,7 @@ Features that would have been implemented
 The following approach would have been implemented should there be time
 
 - Email verification of regular user 
-- More Robust test asserting response body content
-- Test for task (CRUD)
+- Logging to sentry
 
 
 
