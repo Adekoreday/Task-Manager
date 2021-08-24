@@ -1,13 +1,14 @@
 import request from 'supertest'
 import app from '../../src'
 import faker from 'faker'
+import { IUser } from '../__mocks__'
 
-//__mocks___
-interface IUser {
-  name: string
-  email: string
-  password: string
-}
+// //__mocks___
+// interface IUser {
+//   name: string
+//   email: string
+//   password: string
+// }
 
 interface IUserLogin {
   email: string
@@ -15,7 +16,7 @@ interface IUserLogin {
 }
 
 export class ValidUser implements IUser {
-  name = faker.name.findName()
+  name = faker.datatype.string(5)
   email = faker.internet.email()
   password = 'seyiKorede'
 }
@@ -26,7 +27,7 @@ class InvalidLogin implements IUserLogin {
 }
 
 export class InValidUser implements IUser {
-  name = faker.name.findName()
+  name = faker.datatype.string(5)
   email = faker.name.findName() // not valid email
   password = 'aa' // this password is less than 6 i.e. the minimum required
 }
