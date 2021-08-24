@@ -1,47 +1,28 @@
 import request from 'supertest'
 import app from '../../src'
-import faker from 'faker'
-import { IUser } from '../__mocks__'
-
-// //__mocks___
-// interface IUser {
-//   name: string
-//   email: string
-//   password: string
-// }
-
-interface IUserLogin {
-  email: string
-  password: string
-}
-
-export class ValidUser implements IUser {
-  name = faker.datatype.string(5)
-  email = faker.internet.email()
-  password = 'seyiKorede'
-}
-
-class InvalidLogin implements IUserLogin {
-  email = ''
-  password = ''
-}
-
-export class InValidUser implements IUser {
-  name = faker.datatype.string(5)
-  email = faker.name.findName() // not valid email
-  password = 'aa' // this password is less than 6 i.e. the minimum required
-}
-//end of __mocks___
+import {
+  IUserLogin,
+  ValidUser,
+  InvalidLogin,
+  InValidUser
+} from '../__mocks__/user'
 
 describe('Sign Up', () => {
   it('Create User Successfully', async () => {
     const validUser = new ValidUser()
     const result = await request(app).post('/api/v1/user').send(validUser)
+    expect(result.body.data.name).toEqual(validUser.name)
+    expect(result.body.data.email).toEqual(validUser.email)
+    expect(result.body.data.password).toEqual('')
     expect(result.statusCode).toEqual(201)
   })
   it('fails to create user with an invalid input', async () => {
     const invalidUser = new InValidUser()
     const result = await request(app).post('/api/v1/user').send(invalidUser)
+    expect(result.body.data.body.email).toEqual('email is not valid')
+    expect(result.body.data.body.password).toEqual(
+      'password must be at least 6 characters'
+    )
     expect(result.statusCode).toEqual(400)
   })
 })
@@ -58,11 +39,19 @@ describe('Sign In', () => {
   })
   it('Log In User Successfully', async () => {
     const result = await request(app).post('/api/v1/user/login').send(loginUser)
+    expect(result.body.data.user.name).toEqual(validUser.name)
+    expect(result.body.data.user.email).toEqual(validUser.email)
+    expect(result.body.data.user.password).toEqual('')
+    expect(typeof result.body.data.token).toBe('string')
     expect(result.statusCode).toEqual(200)
   })
   it('fails to create user with an invalid input', async () => {
     const wrongLogin = new InvalidLogin()
     const result = await request(app).post('/api/v1/user').send(wrongLogin)
+    expect(result.body.data.body.email).toContain('email is not valid')
+    expect(result.body.data.body.password).toContain(
+      'password must be at least 6 characters'
+    )
     expect(result.statusCode).toEqual(400)
   })
 })

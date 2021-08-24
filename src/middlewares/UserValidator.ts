@@ -5,18 +5,6 @@ import emptyBody from './emptyBody'
 import CommonValidator from './CommonValidator'
 
 /**
- * @name makeLowerCase
- * @param {String} value string to be sanitized
- * @returns {String} lower case string
- */
-const makeLowerCase = (value: string): string => {
-  if (value !== '') {
-    return value.toLowerCase()
-  }
-  return value
-}
-
-/**
  * @class UserValidator
  * @classdesc Provides validation middlewares for login and signup route
  */
@@ -31,7 +19,6 @@ export default class UserValidator {
       .trim()
       .isEmail()
       .withMessage('email is not valid')
-      .customSanitizer((value) => makeLowerCase(value))
   }
 
   /**
@@ -56,7 +43,6 @@ export default class UserValidator {
         'g'
       )
       .withMessage(`invalid input for ${name}`)
-      .customSanitizer((value) => makeLowerCase(value))
   }
 
   /**
