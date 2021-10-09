@@ -52,8 +52,9 @@ The following approach would have been implemented should there be time
 - Email verification of regular user 
 - Logging to sentry
 - complete test for read, update and delete of task (already setup an example of how i'll do them in the task create test)
-
-
-
+- introduce rate limit
+- Searching and filtering
+- add alias for types
+- Add kubernetes deployment files
 
 
