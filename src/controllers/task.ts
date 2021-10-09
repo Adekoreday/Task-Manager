@@ -1,9 +1,8 @@
-/* eslint-disable no-console */
 import { NextFunction, Request, Response } from 'express'
 import { TaskModel, TaskDocument } from '../database/Task'
 import { ServerResponse, ServerError } from '../utils/serverResponse'
 import { HttpStatusCode } from '../utils/errorHandler'
-import { ITask, ITaskUpdate } from '../types/task'
+import { ITask, KeysOfType } from '../types/task'
 
 export default class TaskController {
   /**
@@ -20,33 +19,35 @@ export default class TaskController {
     response: Response,
     next: NextFunction
   ): Promise<void> {
-    const taskData: ITask = request.body
-    const task = new TaskModel({
-      title: taskData.title,
-      description: taskData.description,
-      doneTime: new Date(taskData.doneTime),
-      isCompleted: taskData.isCompleted,
-      notificationTime: new Date(taskData.notificationTime)
-    })
+    try {
+      const taskData: ITask = request.body
+      const task = new TaskModel({
+        title: taskData.title,
+        description: taskData.description,
+        doneTime: new Date(taskData.doneTime),
+        isCompleted: taskData.isCompleted,
+        notificationTime: new Date(taskData.notificationTime)
+      })
 
-    task.save((err) => {
-      if (err) {
-        return next(
-          new ServerError<null>(
+      task.save((err) => {
+        if (err) {
+          throw new ServerError<null>(
             HttpStatusCode.INTERNAL_SERVER,
             true,
             'failed to create task',
             null
           )
+        }
+        return ServerResponse<TaskDocument>(
+          response,
+          HttpStatusCode.CREATED,
+          'task created successfully',
+          task
         )
-      }
-      return ServerResponse<TaskDocument>(
-        response,
-        HttpStatusCode.CREATED,
-        'task created successfully',
-        task
-      )
-    })
+      })
+    } catch (err) {
+      next(err)
+    }
   }
   /**
    * @name Update
@@ -62,53 +63,44 @@ export default class TaskController {
     response: Response,
     next: NextFunction
   ): Promise<void> {
-    const { id } = request.params
-    const taskInput: ITask = request.body
-    const task = await TaskModel.findById(id)
-    if (task == null) {
-      return next(
-        new ServerError<null>(
+    try {
+      const { id } = request.params
+      const task = await TaskModel.findById(id)
+      if (task == null) {
+        throw new ServerError<null>(
           HttpStatusCode.NOT_FOUND,
           true,
           'failed to update task that does not exits',
           null
         )
-      )
-    }
+      }
 
-    const taskUpdate: ITaskUpdate = {
-      title: taskInput.title ?? task.title,
-      description: taskInput.description ?? task.description,
-      isCompleted: taskInput.isCompleted ?? task.isCompleted,
-      doneTime: taskInput.doneTime
-        ? new Date(taskInput.doneTime)
-        : task.doneTime,
-      notificationTime: taskInput.notificationTime
-        ? new Date(taskInput.notificationTime)
-        : task.notificationTime
-    }
+      Object.keys(request.body).forEach((item) => {
+        const key: KeysOfType<TaskDocument, boolean> = item as KeysOfType<
+          TaskDocument,
+          boolean
+        >
+        task[key] = request.body[key]
+      })
 
-    const updatedTask = await TaskModel.findByIdAndUpdate(id, taskUpdate, {
-      new: true,
-      useFindAndModify: false
-    })
-
-    if (updatedTask != null) {
-      ServerResponse<TaskDocument>(
-        response,
-        HttpStatusCode.OK,
-        'task updated successfully',
-        updatedTask
-      )
-    } else {
-      return next(
-        new ServerError<null>(
-          HttpStatusCode.INTERNAL_SERVER,
-          true,
-          'failed to update task ',
-          null
+      task.save((err) => {
+        if (err) {
+          throw new ServerError<null>(
+            HttpStatusCode.INTERNAL_SERVER,
+            true,
+            'failed to update task',
+            null
+          )
+        }
+        return ServerResponse<TaskDocument>(
+          response,
+          HttpStatusCode.OK,
+          'task updated successfully',
+          task
         )
-      )
+      })
+    } catch (err) {
+      next(err)
     }
   }
 
@@ -126,24 +118,26 @@ export default class TaskController {
     response: Response,
     next: NextFunction
   ): Promise<void> {
-    const { id } = request.params
-    const task = await TaskModel.findById(id)
-    if (task == null) {
-      return next(
-        new ServerError<null>(
+    try {
+      const { id } = request.params
+      const task = await TaskModel.findById(id)
+      if (task == null) {
+        throw new ServerError<null>(
           HttpStatusCode.NOT_FOUND,
           true,
           'failed to get task that does not exits',
           null
         )
+      }
+      ServerResponse<TaskDocument>(
+        response,
+        HttpStatusCode.OK,
+        'task retrieved successfully',
+        task
       )
+    } catch (err) {
+      next(err)
     }
-    ServerResponse<TaskDocument>(
-      response,
-      HttpStatusCode.OK,
-      'task retrieved successfully',
-      task
-    )
   }
 
   /**
@@ -160,23 +154,25 @@ export default class TaskController {
     response: Response,
     next: NextFunction
   ): Promise<void> {
-    const task = await TaskModel.find()
-    if (task == null) {
-      return next(
-        new ServerError<null>(
+    try {
+      const task = await TaskModel.find()
+      if (task == null) {
+        throw new ServerError<null>(
           HttpStatusCode.NOT_FOUND,
           true,
           'failed to get task that does not exits',
           null
         )
+      }
+      ServerResponse<TaskDocument[]>(
+        response,
+        HttpStatusCode.OK,
+        'all task retrieved successfully',
+        task
       )
+    } catch (err) {
+      next(err)
     }
-    ServerResponse<TaskDocument[]>(
-      response,
-      HttpStatusCode.OK,
-      'all task retrieved successfully',
-      task
-    )
   }
 
   /**
@@ -193,26 +189,28 @@ export default class TaskController {
     response: Response,
     next: NextFunction
   ): Promise<void> {
-    const { id } = request.params
-    const task = await TaskModel.findOneAndDelete(
-      { _id: id },
-      { useFindAndModify: false }
-    )
-    if (task == null) {
-      return next(
-        new ServerError<null>(
+    try {
+      const { id } = request.params
+      const task = await TaskModel.findOneAndDelete(
+        { _id: id },
+        { useFindAndModify: false }
+      )
+      if (task == null) {
+        throw new ServerError<null>(
           HttpStatusCode.NOT_FOUND,
           true,
           'task has been previously deleted ',
           null
         )
+      }
+      ServerResponse<null>(
+        response,
+        HttpStatusCode.OK,
+        'task deleted successfully',
+        null
       )
+    } catch (err) {
+      next(err)
     }
-    ServerResponse<null>(
-      response,
-      HttpStatusCode.OK,
-      'task deleted successfully',
-      null
-    )
   }
 }
